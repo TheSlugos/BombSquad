@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 
 namespace BombSquad
 {
@@ -11,8 +8,9 @@ namespace BombSquad
         int _Rows;         // y
         int _Columns;      // x
         int _Bombs;        // number of bombs
-        int[,] _Cells;     // the grid
+        Cellstate[,] _Cells;     // the grid
         bool _Generated;    // map generated flag
+        Bitmap _CellGraphics;
 
         [Flags]
         enum Cellstate { ZERO = 0, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, BOMB, BANG, OOPS, HIDDEN, FLAG };
@@ -34,10 +32,63 @@ namespace BombSquad
             int total_cells = _Columns * _Rows;
             if ( _Bombs < 1 || _Bombs > (int)( total_cells * MAX_BOMB_RATIO ) ) _Bombs = (int)( total_cells * DEFAULT_BOMB_RATIO );
 
-            _Cells = new int[_Columns, _Rows];
+            _Cells = new Cellstate[_Columns, _Rows];
+
+            // set all cells to empty and hidden
+            for (int x = 0; x < _Columns; x++ )
+            {
+                for ( int y = 0; y < _Rows; y++ )
+                {
+                    _Cells[x, y] = Cellstate.ZERO | Cellstate.HIDDEN;
+                }
+            }
+
+            _CellGraphics = new Bitmap( "Cells.png" );
 
             _Generated = false;
         }
 
+        public void Draw(Graphics device, Bitmap surface)
+        {
+            Rectangle destRect;
+            int xcellpos;
+            int ycellpos;
+            int cell_index;
+
+            // draw all of the cells
+            for ( int x = 0; x < _Columns; x++ )
+            {
+                for ( int y = 0; y < _Rows; y++ )
+                {
+                    // calculate destination rectangle
+                    int xpos = x * 40;
+                    int ypos = y * 40;
+                    destRect = new Rectangle( xpos, ypos, 40, 40 );
+
+                    if ( _Cells[x, y].HasFlag( Cellstate.FLAG) )
+                    {
+                        cell_index = ( int )Cellstate.FLAG;
+                    }
+                    else if ( _Cells[x, y].HasFlag( Cellstate.HIDDEN ) )
+                    {
+                        // determine coords of cell graphics
+                        cell_index = ( int )Cellstate.HIDDEN;
+                    }
+                    else
+                    {
+                        cell_index = ( int )_Cells[x, y];
+                    }
+
+                    int ycell = ( int )( cell_index / 4 );
+                    int xcell = cell_index % 4;
+
+                    xcellpos = xcell * 40;
+                    ycellpos = ycell * 40;
+
+                    // draw the cell graphics
+                    device.DrawImage( _CellGraphics, destRect, xcellpos, ycellpos, 40, 40, GraphicsUnit.Pixel );
+                }
+            }
+        }
     }
 }

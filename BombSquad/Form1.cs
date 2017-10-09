@@ -18,6 +18,9 @@ namespace BombSquad
         Timer m_timer;
         TheMap m_Map;
 
+        const int DIMENSION = 9;
+        const int BOMBS = 10;
+
         public Form1()
         {
             InitializeComponent();
@@ -25,7 +28,7 @@ namespace BombSquad
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            m_Map = new TheMap(10, 10, 1000);
+            m_Map = new TheMap(DIMENSION, DIMENSION, BOMBS);
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)

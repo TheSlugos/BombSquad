@@ -8,11 +8,11 @@ namespace BombSquad
 {
     class TheMap
     {
-        int m_Rows;         // y
-        int m_Columns;      // x
-        int m_Bombs;        // number of bombs
-        int[,] m_Cells;     // the grid
-        bool m_Generated;    // map generated flag
+        int _Rows;         // y
+        int _Columns;      // x
+        int _Bombs;        // number of bombs
+        int[,] _Cells;     // the grid
+        bool _Generated;    // map generated flag
 
         [Flags]
         enum Cellstate { ZERO = 0, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, BOMB, BANG, OOPS, HIDDEN, FLAG };
@@ -23,15 +23,20 @@ namespace BombSquad
 
         public TheMap(int columns, int rows, int bombs)
         {
-            if ( columns < 1 ) columns = DEFAULT_SIZE;
-            if (rows < 1) rows = DEFAULT_SIZE;
 
-            int total_cells = columns * rows;
-            if ( bombs < 1 || bombs > (int)( total_cells * MAX_BOMB_RATIO ) ) bombs = (int)( total_cells * DEFAULT_BOMB_RATIO );
+            _Columns = columns;
+            _Rows = rows;
+            _Bombs = bombs;
 
-            m_Cells = new int[columns, rows];
+            if ( _Columns < 1 ) _Columns = DEFAULT_SIZE;
+            if ( _Rows < 1) _Rows = DEFAULT_SIZE;
 
-            m_Generated = false;
+            int total_cells = _Columns * _Rows;
+            if ( _Bombs < 1 || _Bombs > (int)( total_cells * MAX_BOMB_RATIO ) ) _Bombs = (int)( total_cells * DEFAULT_BOMB_RATIO );
+
+            _Cells = new int[_Columns, _Rows];
+
+            _Generated = false;
         }
 
     }

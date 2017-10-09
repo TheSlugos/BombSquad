@@ -36,7 +36,7 @@ namespace BombSquad
             _frame.Parent = this;
             _frame.BackColor = Color.Black;
             _frame.Size = new Size( 360, 360 );
-            _frame.Click += new EventHandler( PictureBox_Click );
+            _frame.MouseClick += new MouseEventHandler( PictureBox_Click );
 
             // setup the graphics device
             _surface = new Bitmap( this.Size.Width, this.Size.Height );
@@ -47,12 +47,10 @@ namespace BombSquad
             _frame.Image = _surface;
         }
 
-        private void PictureBox_Click( object sender, System.EventArgs e )
+        private void PictureBox_Click( object sender, MouseEventArgs e )
         {
-            MouseEventArgs me = ( MouseEventArgs )e;
             // me.X, me.Y, me.Button
-
-            System.Windows.Forms.MessageBox.Show( "Dummy" );
+            System.Windows.Forms.MessageBox.Show( e.X.ToString() );
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)

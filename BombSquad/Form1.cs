@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BombSquad
 {
     public partial class Form1 : Form
     {
-        PictureBox m_frame;
-        Graphics m_device;
-        Bitmap m_surface;
-        Timer m_timer;
-        TheMap m_Map;
+        PictureBox _frame;
+        Graphics _device;
+        Bitmap _surface;
+        Timer _timer;
+        TheMap _Map;
 
         const int DIMENSION = 9;
         const int BOMBS = 10;
@@ -28,12 +22,54 @@ namespace BombSquad
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            m_Map = new TheMap(DIMENSION, DIMENSION, BOMBS);
+            // create the map
+            _Map = new TheMap(DIMENSION, DIMENSION, BOMBS);
+
+            // setup the form
+            this.Text = "Bomb Squad";
+            this.MaximizeBox = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.AutoSize = true;
+
+            // setup the picturebox
+            _frame = new PictureBox();
+            _frame.Parent = this;
+            _frame.BackColor = Color.Black;
+            _frame.Size = new Size( 360, 360 );
+            _frame.MouseClick += new MouseEventHandler( PictureBox_Click );
+
+            // setup the graphics device
+            _surface = new Bitmap( this.Size.Width, this.Size.Height );
+            _frame.Image = _surface;
+            _device = Graphics.FromImage( _surface );
+
+            UpdateMap();
+        }
+
+        private void PictureBox_Click( object sender, MouseEventArgs e )
+        {
+            // me.X, me.Y, me.Button
+            int cellx = ( int )( e.X / 40 );
+            int celly = ( int )( e.Y / 40 );
+
+            // pass clicked cell into the map
+            _Map.Click( cellx, celly, e.Button );
+
+            //MessageBox.Show( String.Format( "Cell: ({0},{1})", cellx, celly ) );
+
+            UpdateMap();
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _device.Dispose();
+            _surface.Dispose();
+        }
 
+        private void UpdateMap()
+        {
+            _Map.Draw( _device, _surface );
+            _frame.Image = _surface;
         }
     }
 }

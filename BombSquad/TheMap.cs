@@ -38,7 +38,7 @@ namespace BombSquad
 
             int total_cells = _Columns * _Rows;
             if ( _Bombs < 1 || _Bombs > ( int )( total_cells * MAX_BOMB_RATIO ) ) _Bombs = ( int )( total_cells * DEFAULT_BOMB_RATIO );
-            _CellGraphics = new Bitmap( "Cells.png" );
+            _CellGraphics = Properties.Resources.Cells;
 
             InitialiseMap();
         }

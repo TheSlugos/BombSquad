@@ -9,7 +9,6 @@ namespace BombSquad
         PictureBox _frame;
         Graphics _device;
         Bitmap _surface;
-        Timer _timer;
         TheMap _Map;
 
         const int DIMENSION = 9;
@@ -48,16 +47,14 @@ namespace BombSquad
 
         private void PictureBox_Click( object sender, MouseEventArgs e )
         {
-            // me.X, me.Y, me.Button
             int cellx = ( int )( e.X / 40 );
             int celly = ( int )( e.Y / 40 );
-
+            
             // pass clicked cell into the map
             _Map.Click( cellx, celly, e.Button );
 
-            //MessageBox.Show( String.Format( "Cell: ({0},{1})", cellx, celly ) );
-
             UpdateMap();
+            //MessageBox.Show( String.Format( "Cell: ({0},{1})", cellx, celly ) );
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)

@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Collections.Generic;
 
 namespace BombSquad
 {
     class TheMap
     {
+        enum GameState { INIT = 0, PLAY, WON, LOST, END };
+        enum CellImage { ZERO = 0, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, BOMB, BANG, OOPS, HIDDEN, FLAG, WIN };
+        [Flags]
+        enum CellState { VISIBLE = 0, HIDDEN = 1, FLAG = 2 };
+
         int _Rows;         // y
         int _Columns;      // x
         int _Bombs;        // number of bombs
         CellImage[,] _Cells;     // the grid
         CellState[,] _States;   // the visibility of the grid
-        bool _Generated;    // map generated flag
         Bitmap _CellGraphics;
 
-        enum CellImage { ZERO = 0, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, BOMB, BANG, OOPS, HIDDEN, FLAG };
-        [Flags]
-        enum CellState { VISIBLE = 0, HIDDEN = 1, FLAG = 2 };
+        GameState _GameState;
+
+
 
         const int DEFAULT_SIZE = 5;
         const float DEFAULT_BOMB_RATIO = 0.2f;
@@ -50,13 +53,12 @@ namespace BombSquad
             {
                 for ( int y = 0; y < _Rows; y++ )
                 {
-                    //_Cells[x, y] = CellImage.ZERO;
                     _Cells[x, y] = CellImage.ZERO;
-                    //_States[x, y] = CellState.HIDDEN;
+                    _States[x, y] = CellState.HIDDEN;
                 }
             }
 
-            _Generated = false;
+            _GameState = GameState.INIT;
         }
 
         public void Draw(Graphics device, Bitmap surface)
@@ -78,12 +80,17 @@ namespace BombSquad
 
                     if ( _States[x, y].HasFlag( CellState.FLAG ) )
                     {
-                        cell_index = ( int )CellImage.FLAG;
+                        if ( _GameState == GameState.WON )
+                            cell_index = ( int )CellImage.WIN;
+                        else
+                            cell_index = ( int )CellImage.FLAG;
                     }
                     else if ( _States[x, y].HasFlag( CellState.HIDDEN ) )
                     {
-                        // determine coords of cell graphics
-                        cell_index = ( int )CellImage.HIDDEN;
+                        if ( _GameState == GameState.WON )
+                            cell_index = ( int )CellImage.WIN;
+                        else
+                            cell_index = ( int )CellImage.HIDDEN;
                     }
                     else
                     {
@@ -104,13 +111,14 @@ namespace BombSquad
 
         public void Click( int X, int Y, MouseButtons button)
         {
-            if ( _Generated && button == MouseButtons.Middle )
+            // check for end
+            if ( _GameState == GameState.END || _GameState == GameState.WON )
             {
-                InitialiseMap();
+                if ( button == MouseButtons.Middle )
+                    // reset the map
+                    InitialiseMap();
             }
-
-            // clicking only results in an action if a cell is not visible, i.e. has not been clicked
-            if ( _States[X, Y] != CellState.FLAG )  // VISIBLE
+            else if ( _States[X, Y] != CellState.VISIBLE )
             {
                 // handle right click, placing and removing flags indicating "found" objects
                 if ( button == MouseButtons.Right )
@@ -129,21 +137,107 @@ namespace BombSquad
                 {
                     if ( button == MouseButtons.Left )
                     {
-                        if (!_Generated)
+                        if ( _GameState == GameState.INIT )
                         {
                             // Generate the map
                             Generate( X, Y );
                         }
 
-                        if ( _States[X,Y] == CellState.HIDDEN )
+                        ClearCell( X, Y );
+                    }
+                }
+            }
+            else if ( button == MouseButtons.Middle )
+            {
+                // middle-clicks on VISIBLE cells
+                // if the cell has a number and is surrounded by that many flags it will
+                // clear other cells around it, if any
+                MessageBox.Show( "QuickClear" );
+            }
+        }
+
+        private void ClearCell( int X, int Y )
+        {
+            // don't handle left-clicks on FLAGS
+            if ( _States[X, Y] == CellState.HIDDEN )
+            {
+                _States[X, Y] = CellState.VISIBLE;
+
+                // if a zero, flood fill
+                if ( _Cells[X, Y] == CellImage.ZERO )
+                {
+                    Floodfill( X, Y );
+                }
+
+                // check for bomb
+                if ( _Cells[X,Y] == CellImage.BOMB)
+                {
+                    // change it to a BANG
+                    if ( _GameState == GameState.PLAY )
+                    {
+                        _Cells[X, Y] = CellImage.BANG;
+                        _GameState = GameState.END;
+                        ShowBombs();
+                    }
+                }
+            }
+
+            CheckWin();
+        }
+
+        private void CheckWin()
+        {
+            int HiddenCells = 0;
+            for ( int x = 0; x < _Columns; x++ )
+            {
+                for ( int y = 0; y < _Rows; y++ )
+                {
+                    if ( _States[x, y].HasFlag( CellState.HIDDEN ) )
+                    {
+                        HiddenCells++;
+                    }
+                }
+            }
+
+            if ( HiddenCells == _Bombs )
+            {
+                // only hidden cells are Bombs
+                _GameState = GameState.WON;
+
+                // change all hidden cells to green flags
+                for ( int x = 0; x < _Columns; x++ )
+                {
+                    for ( int y = 0; y < _Rows; y++ )
+                    {
+                        if ( _States[x, y].HasFlag( CellState.HIDDEN ) )
                         {
-                            _States[X, Y] = CellState.VISIBLE;
+                            _Cells[x, y] = CellImage.WIN;
+                        }
+                    }
+                }
+            }
+        }
 
-                            // process the bomb click
-
-                            // if an object, you lose
-                            // if a zero, flood fill
-
+        private void ShowBombs()
+        {
+            for ( int x = 0; x < _Columns; x++ )
+            {
+                for ( int y = 0; y < _Rows; y++ )
+                {
+                    if ( _States[x,y] == CellState.HIDDEN )
+                    {
+                        if ( _Cells[x,y] == CellImage.BOMB )
+                        {
+                            ClearCell( x, y );
+                        }
+                    }
+                    if ( _States[x,y].HasFlag(CellState.FLAG))
+                    {
+                        if ( _Cells[x, y] != CellImage.BOMB )
+                        {
+                            _States[x, y] = CellState.HIDDEN;
+                            _Cells[x, y] = CellImage.OOPS;
+                            ClearCell( x, y );
                         }
                     }
                 }
@@ -187,7 +281,27 @@ namespace BombSquad
                 }
             }
 
-            _Generated = true;
+            _GameState = GameState.PLAY;
+        }
+
+        // Floodfill - clears all zero cells
+        void Floodfill(int col, int row)
+        {
+            // row above
+            for ( int y = row - 1; y <= row + 1; y++ )
+            {
+                for ( int x = col - 1; x <= col + 1; x++ )
+                {
+                    // only check valid indexes
+                    if ( ( x >= 0 && x < _Columns ) && ( y >= 0 && y < _Rows ) )
+                    {
+                        if ( _States[x,y] == CellState.HIDDEN && _Cells[x,y] != CellImage.BOMB )
+                        {
+                            ClearCell(x, y);
+                        }
+                    }
+                }
+            }
         }
     }
 }

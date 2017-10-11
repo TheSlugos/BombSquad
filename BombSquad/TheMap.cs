@@ -199,7 +199,7 @@ namespace BombSquad
                 }
             }
 
-            if ( HiddenCells == _Bombs )
+            if ( HiddenCells == _Bombs && _GameState == GameState.PLAY )
             {
                 // only hidden cells are Bombs
                 _GameState = GameState.WON;

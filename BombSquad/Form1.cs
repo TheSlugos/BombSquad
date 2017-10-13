@@ -22,19 +22,21 @@ namespace BombSquad
         private void Form1_Load(object sender, EventArgs e)
         {
             // create the map
-            _Map = new TheMap(DIMENSION, DIMENSION, BOMBS);
+            _Map = new TheMap( DIMENSION, DIMENSION, BOMBS );
 
             // setup the form
             this.Text = "Bomb Squad";
             this.MaximizeBox = false;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.AutoSize = true;
+            this.ClientSize = new Size( 360, 360 );
 
             // setup the picturebox
             _frame = new PictureBox();
             _frame.Parent = this;
             _frame.BackColor = Color.Black;
-            _frame.Size = new Size( 360, 360 );
+            //_frame.Size = new Size( 360, 360 );
+            _frame.Dock = DockStyle.Fill;
             _frame.MouseClick += new MouseEventHandler( PictureBox_Click );
 
             // setup the graphics device

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace BombSquad
 {
@@ -71,36 +72,44 @@ namespace BombSquad
 
         private void PictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if ( _twoButtons)
+            Trace.WriteLine("MouseUp");
+
+            // get cell for this action
+            Point testPoint = GetCellCoordinates(e.X, e.Y);
+
+            // check if action is on same cell, only handle actions in same cell
+            // as mouse down
+            if (testPoint == _actionCell)
             {
-                _twoButtons = false;
-                _buttonDown = MouseButtons.None;
-                mouseButtonTimer.Enabled = false;
-                // send two button command
-                MessageBox.Show("Two Buttons");
-            }
-            else if ( _buttonDown != MouseButtons.None )
-            {
-                mouseButtonTimer.Enabled = false;
-                _buttonDown = MouseButtons.None;
-                // new mouse up action
-                Point testPoint = GetCellCoordinates(e.X, e.Y);
-                // check if action is on same cell
-                if ( testPoint == _actionCell)
+                if (_twoButtons)
                 {
+                    _twoButtons = false;
+                    //_buttonDown = MouseButtons.None;
+                    //mouseButtonTimer.Enabled = false;
+                    // send two button command
+                    _Map.QuickClear(_actionCell.X, _actionCell.Y);
+                }
+                else if (_buttonDown != MouseButtons.None)
+                {
+                    //mouseButtonTimer.Enabled = false;
+                    //_buttonDown = MouseButtons.None;
+                    // new mouse up action
+
                     // send the click event
                     _Map.Click(_actionCell.X, _actionCell.Y, e.Button);
                 }
-                else
-                {
-                    // un-highlight cell
-                }
-
-                UpdateMap();
-                
-                // reset the action cell
-                _actionCell.X = _actionCell.Y = -1;
             }
+            else
+            {
+                // un-highlight cell
+            }
+
+            UpdateMap();
+                
+            // reset the action cell
+            _actionCell.X = _actionCell.Y = -1;
+            mouseButtonTimer.Enabled = false;
+            _buttonDown = MouseButtons.None;
         }
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e)
@@ -129,6 +138,7 @@ namespace BombSquad
                         if (e.Button == MouseButtons.Right)
                         {
                             _twoButtons = true;
+                            mouseButtonTimer.Enabled = false;
                         }
                         break;
 
@@ -136,6 +146,7 @@ namespace BombSquad
                         if ( e.Button == MouseButtons.Left)
                         {
                             _twoButtons = true;
+                            mouseButtonTimer.Enabled = false;
                         }
                         break;
                 }

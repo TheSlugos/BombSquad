@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace BombSquad
 {
     class TheMap
     {
-        enum GameState { INIT = 0, PLAY, WON, LOST, END };
+        public enum GameStateEnum { INIT = 0, PLAY, WON, LOST, END };
         enum CellImage { ZERO = 0, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, BOMB, BANG, OOPS, HIDDEN, FLAG, WIN };
         [Flags]
         enum CellState { VISIBLE = 0, HIDDEN = 1, FLAG = 2 };
@@ -18,9 +20,8 @@ namespace BombSquad
         CellState[,] _States;   // the visibility of the grid
         Bitmap _CellGraphics;
 
-        GameState _GameState;
-
-
+        GameStateEnum _GameState;
+        public GameStateEnum GameState { get { return _GameState; } }
 
         const int DEFAULT_SIZE = 5;
         const float DEFAULT_BOMB_RATIO = 0.2f;
@@ -28,7 +29,6 @@ namespace BombSquad
 
         public TheMap(int columns, int rows, int bombs)
         {
-
             _Columns = columns;
             _Rows = rows;
             _Bombs = bombs;
@@ -58,7 +58,7 @@ namespace BombSquad
                 }
             }
 
-            _GameState = GameState.INIT;
+            _GameState = GameStateEnum.INIT;
         }
 
         public void Draw(Graphics device, Bitmap surface)
@@ -80,14 +80,14 @@ namespace BombSquad
 
                     if ( _States[x, y].HasFlag( CellState.FLAG ) )
                     {
-                        if ( _GameState == GameState.WON )
+                        if ( _GameState == GameStateEnum.WON )
                             cell_index = ( int )CellImage.WIN;
                         else
                             cell_index = ( int )CellImage.FLAG;
                     }
                     else if ( _States[x, y].HasFlag( CellState.HIDDEN ) )
                     {
-                        if ( _GameState == GameState.WON )
+                        if ( _GameState == GameStateEnum.WON )
                             cell_index = ( int )CellImage.WIN;
                         else
                             cell_index = ( int )CellImage.HIDDEN;
@@ -111,8 +111,10 @@ namespace BombSquad
 
         public void Click( int X, int Y, MouseButtons button)
         {
+            Trace.WriteLine("Click");
+
             // check for end
-            if ( _GameState == GameState.END || _GameState == GameState.WON )
+            if ( _GameState == GameStateEnum.END || _GameState == GameStateEnum.WON )
             {
                 if ( button == MouseButtons.Middle )
                     // reset the map
@@ -137,7 +139,7 @@ namespace BombSquad
                 {
                     if ( button == MouseButtons.Left )
                     {
-                        if ( _GameState == GameState.INIT )
+                        if ( _GameState == GameStateEnum.INIT )
                         {
                             // Generate the map
                             Generate( X, Y );
@@ -152,9 +154,8 @@ namespace BombSquad
                 // middle-clicks on VISIBLE cells
                 // if the cell has a number and is surrounded by that many flags it will
                 // clear other cells around it, if any
-                MessageBox.Show( "QuickClear" );
+                QuickClear(X, Y);
             }
-
         }
 
         private void ClearCell( int X, int Y )
@@ -174,15 +175,16 @@ namespace BombSquad
                 if ( _Cells[X,Y] == CellImage.BOMB)
                 {
                     // change it to a BANG
-                    if ( _GameState == GameState.PLAY )
+                    if ( _GameState == GameStateEnum.PLAY )
                     {
                         _Cells[X, Y] = CellImage.BANG;
-                        _GameState = GameState.END;
+                        _GameState = GameStateEnum.END;
                         ShowBombs();
                     }
                 }
             }
 
+            // TODO: only check win if not ended 
             CheckWin();
         }
 
@@ -200,10 +202,10 @@ namespace BombSquad
                 }
             }
 
-            if ( HiddenCells == _Bombs && _GameState == GameState.PLAY )
+            if ( HiddenCells == _Bombs && _GameState == GameStateEnum.PLAY )
             {
                 // only hidden cells are Bombs
-                _GameState = GameState.WON;
+                _GameState = GameStateEnum.WON;
 
                 // change all hidden cells to green flags
                 for ( int x = 0; x < _Columns; x++ )
@@ -282,7 +284,7 @@ namespace BombSquad
                 }
             }
 
-            _GameState = GameState.PLAY;
+            _GameState = GameStateEnum.PLAY;
         }
 
         // Floodfill - clears all zero cells
@@ -299,6 +301,59 @@ namespace BombSquad
                         if ( _States[x,y] == CellState.HIDDEN && _Cells[x,y] != CellImage.BOMB )
                         {
                             ClearCell(x, y);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles two button click on visible cell
+        /// If the cells surrounding this cell have flags equal to the number
+        /// in this cell then clear all other surrounding cells
+        /// </summary>
+        /// <param name="X">column of this cell</param>
+        /// <param name="Y">row of this cell</param>
+        public void QuickClear(int X, int Y)
+        {
+            Trace.WriteLine("QuickClear");
+            int surroundFlags = 0; // number of flags set around this cell
+
+            if ( _States[X,Y] == CellState.VISIBLE)
+            {
+                if ( _Cells[X,Y] >= CellImage.ONE && _Cells[X,Y] <= CellImage.EIGHT)
+                {
+                    // TODO: get surrounding cells - in a list
+                    List<Point> surroundCells = new List<Point>();
+                    for ( int i = X - 1; i <= X + 1; i++)
+                    {
+                        for ( int j = Y - 1; j <= Y + 1; j++)
+                        {
+                            if ( ( i >= 0 && i < _Columns) && (j >= 0 && j < _Rows) )
+                            {
+                                // valid cell
+                                if ( _States[i,j] != CellState.VISIBLE )
+                                {
+                                    surroundCells.Add(new Point(i,j));
+                                    // count flags set
+                                    if (_States[i,j].HasFlag(CellState.FLAG))
+                                    {
+                                        surroundFlags++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // if # flags >= number of this cell
+                    if ( surroundFlags >= (int)_Cells[X,Y])
+                    {
+                        // clear all hidden cells
+                        foreach(Point p in surroundCells)
+                        {
+                            if ( _GameState == GameStateEnum.PLAY)
+                                if ( _States[p.X,p.Y] == CellState.HIDDEN)
+                                    ClearCell(p.X,p.Y);
                         }
                     }
                 }

@@ -28,13 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.mouseButtonTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // mouseButtonTimer
+            // 
+            this.mouseButtonTimer.Interval = 20;
+            this.mouseButtonTimer.Tick += new System.EventHandler(this.mouseButtonTimer_Tick);
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(426, 402);
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "Form1";
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
@@ -44,6 +52,8 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Timer mouseButtonTimer;
     }
 }
 

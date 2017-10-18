@@ -15,6 +15,9 @@ namespace BombSquad
         Bitmap _surface;
         TheMap _Map;
         Point _actionCell;
+        int _timerInterval = 20;
+        MouseButtons _buttonDown = MouseButtons.None;
+        bool _twoButtons = false;
 
         const int COLUMNS = 9;
         const int ROWS = 9;
@@ -30,6 +33,11 @@ namespace BombSquad
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Initialises game objects and controls
+        /// </summary>
+        /// <param name="sender">Caller object</param>
+        /// <param name="e">Event parameters</param>
         private void Form1_Load(object sender, EventArgs e)
         {
             // create the map
@@ -51,6 +59,7 @@ namespace BombSquad
             _frame.MouseDown += PictureBox_MouseDown;
             _frame.MouseUp += PictureBox_MouseUp;
             _actionCell = new Point(-1, -1);
+            mouseButtonTimer.Interval = _timerInterval;
             
             // setup the graphics device
             _surface = new Bitmap( this.Size.Width, this.Size.Height );
@@ -62,8 +71,18 @@ namespace BombSquad
 
         private void PictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if (_actionCell.X > -1 && _actionCell.Y > -1)
+            if ( _twoButtons)
             {
+                _twoButtons = false;
+                _buttonDown = MouseButtons.None;
+                mouseButtonTimer.Enabled = false;
+                // send two button command
+                MessageBox.Show("Two Buttons");
+            }
+            else if ( _buttonDown != MouseButtons.None )
+            {
+                mouseButtonTimer.Enabled = false;
+                _buttonDown = MouseButtons.None;
                 // new mouse up action
                 Point testPoint = GetCellCoordinates(e.X, e.Y);
                 // check if action is on same cell
@@ -82,18 +101,44 @@ namespace BombSquad
                 // reset the action cell
                 _actionCell.X = _actionCell.Y = -1;
             }
-
         }
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            if ( _actionCell.X == -1 && _actionCell.Y == -1 )
-            {
-                // new mouse down action
-                // get cell for this action
-                _actionCell = GetCellCoordinates(e.X, e.Y);
+            //if ( _actionCell.X == -1 && _actionCell.Y == -1 )
+            //{
+            //    // new mouse down action
+            //    // get cell for this action
+            //    _actionCell = GetCellCoordinates(e.X, e.Y);
 
-                // highlight cell
+            //    // highlight cell
+            //}
+            if ( _buttonDown == MouseButtons.None )
+            {
+                // new button down registered
+                _actionCell = GetCellCoordinates(e.X, e.Y);
+                _buttonDown = e.Button;
+                mouseButtonTimer.Enabled = true;
+            }
+            else
+            {
+                // double mouse button, only occurs if timer has not ticked
+                switch (_buttonDown)
+                {
+                    case MouseButtons.Left:
+                        if (e.Button == MouseButtons.Right)
+                        {
+                            _twoButtons = true;
+                        }
+                        break;
+
+                    case MouseButtons.Right:
+                        if ( e.Button == MouseButtons.Left)
+                        {
+                            _twoButtons = true;
+                        }
+                        break;
+                }
             }
         }
 
@@ -146,6 +191,12 @@ namespace BombSquad
             _Map.Draw( _device, _surface );
             // refresh the screen
             _frame.Image = _surface;
+        }
+
+        private void mouseButtonTimer_Tick(object sender, EventArgs e)
+        {
+            mouseButtonTimer.Enabled = false;
+            _twoButtons = false;
         }
     }
 }

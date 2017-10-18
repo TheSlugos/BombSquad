@@ -14,6 +14,7 @@ namespace BombSquad
         Graphics _device;
         Bitmap _surface;
         TheMap _Map;
+        Point _actionCell;
 
         const int COLUMNS = 9;
         const int ROWS = 9;
@@ -46,10 +47,11 @@ namespace BombSquad
             _frame.Parent = this;
             _frame.BackColor = Color.Black;
             _frame.Dock = DockStyle.Fill;
-            _frame.MouseClick += new MouseEventHandler( PictureBox_Click );
-            //_frame.MouseDown += PictureBox_MouseDown;
-            //_frame.MouseUp += PictureBox_MouseUp;
-
+            //_frame.MouseClick += new MouseEventHandler( PictureBox_Click );
+            _frame.MouseDown += PictureBox_MouseDown;
+            _frame.MouseUp += PictureBox_MouseUp;
+            _actionCell = new Point(-1, -1);
+            
             // setup the graphics device
             _surface = new Bitmap( this.Size.Width, this.Size.Height );
             _frame.Image = _surface;
@@ -60,12 +62,39 @@ namespace BombSquad
 
         private void PictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            throw new NotImplementedException();
+            if (_actionCell.X > -1 && _actionCell.Y > -1)
+            {
+                // new mouse up action
+                Point testPoint = GetCellCoordinates(e.X, e.Y);
+                // check if action is on same cell
+                if ( testPoint == _actionCell)
+                {
+                    // send the click event
+                    _Map.Click(_actionCell.X, _actionCell.Y, e.Button);
+                }
+                else
+                {
+                    // un-highlight cell
+                }
+
+                UpdateMap();
+                
+                // reset the action cell
+                _actionCell.X = _actionCell.Y = -1;
+            }
+
         }
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            throw new NotImplementedException();
+            if ( _actionCell.X == -1 && _actionCell.Y == -1 )
+            {
+                // new mouse down action
+                // get cell for this action
+                _actionCell = GetCellCoordinates(e.X, e.Y);
+
+                // highlight cell
+            }
         }
 
         /// <summary>

@@ -154,6 +154,7 @@ namespace BombSquad
                 // clear other cells around it, if any
                 MessageBox.Show( "QuickClear" );
             }
+
         }
 
         private void ClearCell( int X, int Y )

@@ -16,6 +16,10 @@ namespace BombSquad
         Bitmap _surface;
         TheMap _Map;
         Point _actionCell;
+        Button _resetButton;
+        Label _lbBombsLeft;
+        Label _lbTimer;
+
         int _timerInterval = 20;
         MouseButtons _buttonDown = MouseButtons.None;
         bool _twoButtons = false;
@@ -24,6 +28,7 @@ namespace BombSquad
         const int ROWS = 9;
         const int BOMBS = 10;
         const int CELLWIDTH = 40;
+        const int HEADER = 50;
 
         /// <summary>
         /// Constructor
@@ -49,13 +54,15 @@ namespace BombSquad
             this.MaximizeBox = false;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.AutoSize = true;
-            this.ClientSize = new Size( COLUMNS * CELLWIDTH, ROWS * CELLWIDTH );
+            this.ClientSize = new Size( COLUMNS * CELLWIDTH, ROWS * CELLWIDTH + HEADER);
 
             // setup the picturebox
             _frame = new PictureBox();
             _frame.Parent = this;
             _frame.BackColor = Color.Black;
-            _frame.Dock = DockStyle.Fill;
+            _frame.Dock = DockStyle.Bottom;
+            _frame.Size = new Size(COLUMNS * CELLWIDTH, ROWS * CELLWIDTH);
+            
             //_frame.MouseClick += new MouseEventHandler( PictureBox_Click );
             _frame.MouseDown += PictureBox_MouseDown;
             _frame.MouseUp += PictureBox_MouseUp;
@@ -63,10 +70,37 @@ namespace BombSquad
             mouseButtonTimer.Interval = _timerInterval;
             
             // setup the graphics device
-            _surface = new Bitmap( this.Size.Width, this.Size.Height );
+            _surface = new Bitmap( _frame.Size.Width, _frame.Size.Height );
             _frame.Image = _surface;
             _device = Graphics.FromImage( _surface );
 
+            // setup the reset button
+            _resetButton = new Button();
+            _resetButton.Parent = this;
+            _resetButton.Size = new Size(CELLWIDTH, CELLWIDTH);
+            _resetButton.Location = new Point((ClientRectangle.Width - _resetButton.Width) / 2, (HEADER - _resetButton.Height) / 2);
+            _resetButton.Click += _resetButton_Click;
+
+            // setup the text boxes
+            _lbBombsLeft = new Label();
+            _lbBombsLeft.Parent = this;
+            _lbBombsLeft.Font = new Font("Verdana", 20.0f);
+            _lbBombsLeft.Text = "000";
+            _lbBombsLeft.AutoSize = true;
+            _lbBombsLeft.Location = new Point(10, (HEADER - _lbBombsLeft.Height) / 2);
+            _lbTimer = new Label();
+            _lbTimer.Parent = this;
+            _lbTimer.Font = new Font("Verdana", 20.0f);
+            _lbTimer.Text = "000";
+            _lbTimer.AutoSize = true;
+            _lbTimer.Location = new Point(ClientSize.Width - 10 - _lbBombsLeft.Width, (HEADER - _lbBombsLeft.Height) / 2);
+
+            UpdateMap();
+        }
+
+        private void _resetButton_Click(object sender, EventArgs e)
+        {
+            _Map.InitialiseMap();
             UpdateMap();
         }
 

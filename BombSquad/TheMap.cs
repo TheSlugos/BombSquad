@@ -43,7 +43,7 @@ namespace BombSquad
             InitialiseMap();
         }
 
-        private void InitialiseMap()
+        public void InitialiseMap()
         {
             _Cells = new CellImage[_Columns, _Rows];
             _States = new CellState[_Columns, _Rows];

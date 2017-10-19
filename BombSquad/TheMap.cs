@@ -19,6 +19,11 @@ namespace BombSquad
         CellImage[,] _Cells;     // the grid
         CellState[,] _States;   // the visibility of the grid
         Bitmap _CellGraphics;
+        Timer _gameTimer;
+        int _gameTimeElapsed;
+        int _flagsPlaced;
+        Label _lbBombsRemaining;
+        Label _lbTimeElapsed;
 
         GameStateEnum _GameState;
         public GameStateEnum GameState { get { return _GameState; } }
@@ -27,11 +32,13 @@ namespace BombSquad
         const float DEFAULT_BOMB_RATIO = 0.2f;
         const float MAX_BOMB_RATIO = 0.5f;
 
-        public TheMap(int columns, int rows, int bombs)
+        public TheMap(int columns, int rows, int bombs, Label bombLabel, Label timeLabel)
         {
             _Columns = columns;
             _Rows = rows;
             _Bombs = bombs;
+            _lbBombsRemaining = bombLabel;
+            _lbTimeElapsed = timeLabel;
 
             if ( _Columns < 1 ) _Columns = DEFAULT_SIZE;
             if ( _Rows < 1 ) _Rows = DEFAULT_SIZE;
@@ -40,7 +47,50 @@ namespace BombSquad
             if ( _Bombs < 1 || _Bombs > ( int )( total_cells * MAX_BOMB_RATIO ) ) _Bombs = ( int )( total_cells * DEFAULT_BOMB_RATIO );
             _CellGraphics = Properties.Resources.Cells;
 
+            // setup the timer
+            _gameTimer = new Timer();
+            _gameTimer.Interval = 1000;
+            _gameTimer.Tick += _gameTimer_Tick;
+
             InitialiseMap();
+        }
+
+        private void _gameTimer_Tick(object sender, EventArgs e)
+        {
+            if (_gameTimeElapsed < 999)
+            {
+                _gameTimeElapsed++;
+            }
+
+            SetTimeLabelText();
+        }
+
+        private void SetTimeLabelText()
+        {
+            int thou = _gameTimeElapsed / 1000;
+            int rmdr = _gameTimeElapsed % 1000;
+            int tens = rmdr / 10;
+            int units = rmdr % 10;
+
+            string value = string.Format("{0}{1}{2}", thou, tens, units);
+            _lbTimeElapsed.Text = value;
+        }
+
+        private void SetBombLabelText()
+        {
+            int bombsLeft = _Bombs - _flagsPlaced;
+            if (bombsLeft < 0)
+            {
+                bombsLeft = 0;
+            }
+
+            int thou =  bombsLeft / 1000;
+            int rmdr = bombsLeft % 1000;
+            int tens = rmdr / 10;
+            int units = rmdr % 10;
+
+            string value = string.Format("{0}{1}{2}", thou, tens, units);
+            _lbBombsRemaining.Text = value;
         }
 
         public void InitialiseMap()
@@ -57,6 +107,14 @@ namespace BombSquad
                     _States[x, y] = CellState.HIDDEN;
                 }
             }
+
+            // stop and reset the timer
+            _gameTimer.Enabled = false;
+            _gameTimeElapsed = 0;
+            SetTimeLabelText();
+
+            _flagsPlaced = 0;
+            SetBombLabelText();
 
             _GameState = GameStateEnum.INIT;
         }
@@ -113,6 +171,13 @@ namespace BombSquad
         {
             Trace.WriteLine("Click");
 
+            // generate the map
+            if (_GameState == GameStateEnum.INIT)
+            {
+                // Generate the map
+                Generate(X, Y);
+            }
+
             // check for end
             if ( _GameState == GameStateEnum.END || _GameState == GameStateEnum.WON )
             {
@@ -128,10 +193,14 @@ namespace BombSquad
                     if ( _States[X, Y].HasFlag( CellState.FLAG ) )
                     {
                         _States[X, Y] &= ~CellState.FLAG;
+                        if (--_flagsPlaced < 0) _flagsPlaced = 0;
+                        SetBombLabelText();
                     }
                     else if ( _States[X, Y].HasFlag( CellState.HIDDEN ) )
                     {
                         _States[X, Y] |= CellState.FLAG;
+                        ++_flagsPlaced;
+                        SetBombLabelText();
                     }
                 }
                 else
@@ -139,12 +208,6 @@ namespace BombSquad
                 {
                     if ( button == MouseButtons.Left )
                     {
-                        if ( _GameState == GameStateEnum.INIT )
-                        {
-                            // Generate the map
-                            Generate( X, Y );
-                        }
-
                         ClearCell( X, Y );
                     }
                 }
@@ -179,6 +242,10 @@ namespace BombSquad
                     {
                         _Cells[X, Y] = CellImage.BANG;
                         _GameState = GameStateEnum.END;
+
+                        // stop the timer
+                        _gameTimer.Enabled = false;
+
                         ShowBombs();
                     }
                 }
@@ -207,6 +274,9 @@ namespace BombSquad
                 // only hidden cells are Bombs
                 _GameState = GameStateEnum.WON;
 
+                // stop the timer
+                _gameTimer.Enabled = false;
+
                 // change all hidden cells to green flags
                 for ( int x = 0; x < _Columns; x++ )
                 {
@@ -215,6 +285,7 @@ namespace BombSquad
                         if ( _States[x, y].HasFlag( CellState.HIDDEN ) )
                         {
                             _Cells[x, y] = CellImage.WIN;
+                            _flagsPlaced++;
                         }
                     }
                 }
@@ -283,6 +354,10 @@ namespace BombSquad
                     }
                 }
             }
+
+            // start the timer
+            _gameTimer.Enabled = true;
+            _gameTimeElapsed = 0;
 
             _GameState = GameStateEnum.PLAY;
         }

@@ -46,9 +46,6 @@ namespace BombSquad
         /// <param name="e">Event parameters</param>
         private void Form1_Load(object sender, EventArgs e)
         {
-            // create the map
-            _Map = new TheMap( COLUMNS, ROWS, BOMBS );
-
             // setup the form
             this.Text = "Bomb Squad";
             this.MaximizeBox = false;
@@ -94,6 +91,9 @@ namespace BombSquad
             _lbTimer.Text = "000";
             _lbTimer.AutoSize = true;
             _lbTimer.Location = new Point(ClientSize.Width - 10 - _lbBombsLeft.Width, (HEADER - _lbBombsLeft.Height) / 2);
+
+            // create the map
+            _Map = new TheMap(COLUMNS, ROWS, BOMBS, _lbBombsLeft, _lbTimer);
 
             UpdateMap();
         }

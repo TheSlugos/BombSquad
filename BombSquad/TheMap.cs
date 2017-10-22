@@ -18,6 +18,7 @@ namespace BombSquad
         int _Bombs;        // number of bombs
         CellImage[,] _Cells;     // the grid
         CellState[,] _States;   // the visibility of the grid
+        int _CellWidth;
         Bitmap _CellGraphics;
         Timer _gameTimer;
         int _gameTimeElapsed;
@@ -32,11 +33,12 @@ namespace BombSquad
         const float DEFAULT_BOMB_RATIO = 0.2f;
         const float MAX_BOMB_RATIO = 0.5f;
 
-        public TheMap(int columns, int rows, int bombs, Label bombLabel, Label timeLabel)
+        public TheMap(int columns, int rows, int bombs, int cellWidth, Label bombLabel, Label timeLabel)
         {
             _Columns = columns;
             _Rows = rows;
             _Bombs = bombs;
+            _CellWidth = cellWidth;
             _lbBombsRemaining = bombLabel;
             _lbTimeElapsed = timeLabel;
 
@@ -45,7 +47,9 @@ namespace BombSquad
 
             int total_cells = _Columns * _Rows;
             if ( _Bombs < 1 || _Bombs > ( int )( total_cells * MAX_BOMB_RATIO ) ) _Bombs = ( int )( total_cells * DEFAULT_BOMB_RATIO );
-            _CellGraphics = Properties.Resources.Cells;
+
+            // Resource containing cell graphics
+            _CellGraphics = Properties.Resources.Cells30;
 
             // setup the timer
             _gameTimer = new Timer();
@@ -67,8 +71,8 @@ namespace BombSquad
 
         private void SetTimeLabelText()
         {
-            int thou = _gameTimeElapsed / 1000;
-            int rmdr = _gameTimeElapsed % 1000;
+            int thou = _gameTimeElapsed / 100;
+            int rmdr = _gameTimeElapsed % 100;
             int tens = rmdr / 10;
             int units = rmdr % 10;
 
@@ -84,8 +88,8 @@ namespace BombSquad
                 bombsLeft = 0;
             }
 
-            int thou =  bombsLeft / 1000;
-            int rmdr = bombsLeft % 1000;
+            int thou =  bombsLeft / 100;
+            int rmdr = bombsLeft % 100;
             int tens = rmdr / 10;
             int units = rmdr % 10;
 
@@ -119,6 +123,15 @@ namespace BombSquad
             _GameState = GameStateEnum.INIT;
         }
 
+        public void InitialiseMap(int Columns, int Rows, int Bombs)
+        {
+            _Bombs = Bombs;
+            _Columns = Columns;
+            _Rows = Rows;
+
+            InitialiseMap();
+        }
+
         public void Draw(Graphics device, Bitmap surface)
         {
             Rectangle destRect;
@@ -132,9 +145,9 @@ namespace BombSquad
                 for ( int y = 0; y < _Rows; y++ )
                 {
                     // calculate destination rectangle
-                    int xpos = x * 40;
-                    int ypos = y * 40;
-                    destRect = new Rectangle( xpos, ypos, 40, 40 );
+                    int xpos = x * _CellWidth;
+                    int ypos = y * _CellWidth;
+                    destRect = new Rectangle( xpos, ypos, _CellWidth, _CellWidth );
 
                     if ( _States[x, y].HasFlag( CellState.FLAG ) )
                     {
@@ -158,11 +171,12 @@ namespace BombSquad
                     int ycell = ( int )( cell_index / 4 );
                     int xcell = cell_index % 4;
 
-                    xcellpos = xcell * 40;
-                    ycellpos = ycell * 40;
+                    xcellpos = xcell * _CellWidth;
+                    ycellpos = ycell * _CellWidth;
 
                     // draw the cell graphics
-                    device.DrawImage( _CellGraphics, destRect, xcellpos, ycellpos, 40, 40, GraphicsUnit.Pixel );
+                    device.DrawImage( _CellGraphics, destRect, xcellpos, ycellpos, 
+                        _CellWidth, _CellWidth, GraphicsUnit.Pixel );
                 }
             }
         }
@@ -286,6 +300,7 @@ namespace BombSquad
                         {
                             _Cells[x, y] = CellImage.WIN;
                             _flagsPlaced++;
+                            SetBombLabelText();
                         }
                     }
                 }

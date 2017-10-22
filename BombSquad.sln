@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BombSquad", "BombSquad\BombSquad.csproj", "{5A271249-9B2C-4150-96DB-9536E3E9167C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwoMouseClick", "TwoMouseClick\TwoMouseClick.csproj", "{A962FE87-3413-443D-9A68-E48301006DEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAMenu", "AddAMenu\AddAMenu.csproj", "{5E51BC83-58D5-4E70-AE67-A6218358A7B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A962FE87-3413-443D-9A68-E48301006DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A962FE87-3413-443D-9A68-E48301006DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A962FE87-3413-443D-9A68-E48301006DEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

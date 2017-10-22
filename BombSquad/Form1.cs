@@ -19,6 +19,9 @@ namespace BombSquad
         Button _resetButton;
         Label _lbBombsLeft;
         Label _lbTimer;
+        int _Bombs;
+        int _Columns;
+        int _Rows;
 
         int _timerInterval = 20;
         MouseButtons _buttonDown = MouseButtons.None;
@@ -27,7 +30,7 @@ namespace BombSquad
         const int COLUMNS = 9;
         const int ROWS = 9;
         const int BOMBS = 10;
-        const int CELLWIDTH = 40;
+        const int CELLWIDTH = 30;
         const int HEADER = 50;
 
         /// <summary>
@@ -46,37 +49,36 @@ namespace BombSquad
         /// <param name="e">Event parameters</param>
         private void Form1_Load(object sender, EventArgs e)
         {
+            // read current settings from file and set Bombs,Rows,Columns
+            // for now just start with EASY
+            menuEasy.Checked = true;
+            menuMedium.Checked = false;
+            menuHard.Checked = false;
+            _Bombs = BOMBS;
+            _Columns = COLUMNS;
+            _Rows = ROWS;
+
+            _Map = null;
+
             // setup the form
             this.Text = "Bomb Squad";
             this.MaximizeBox = false;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.AutoSize = true;
-            this.ClientSize = new Size( COLUMNS * CELLWIDTH, ROWS * CELLWIDTH + HEADER);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 
             // setup the picturebox
             _frame = new PictureBox();
             _frame.Parent = this;
             _frame.BackColor = Color.Black;
-            _frame.Dock = DockStyle.Bottom;
-            _frame.Size = new Size(COLUMNS * CELLWIDTH, ROWS * CELLWIDTH);
-            
-            //_frame.MouseClick += new MouseEventHandler( PictureBox_Click );
+            //_frame.Dock = DockStyle.Bottom;
             _frame.MouseDown += PictureBox_MouseDown;
             _frame.MouseUp += PictureBox_MouseUp;
-            _actionCell = new Point(-1, -1);
-            mouseButtonTimer.Interval = _timerInterval;
-            
-            // setup the graphics device
-            _surface = new Bitmap( _frame.Size.Width, _frame.Size.Height );
-            _frame.Image = _surface;
-            _device = Graphics.FromImage( _surface );
 
             // setup the reset button
             _resetButton = new Button();
             _resetButton.Parent = this;
-            _resetButton.Size = new Size(CELLWIDTH, CELLWIDTH);
-            _resetButton.Location = new Point((ClientRectangle.Width - _resetButton.Width) / 2, (HEADER - _resetButton.Height) / 2);
+            _resetButton.Size = new Size(40, 40);
             _resetButton.Click += _resetButton_Click;
+            _resetButton.Image = Properties.Resources.Smiley;
 
             // setup the text boxes
             _lbBombsLeft = new Label();
@@ -84,16 +86,42 @@ namespace BombSquad
             _lbBombsLeft.Font = new Font("Verdana", 20.0f);
             _lbBombsLeft.Text = "000";
             _lbBombsLeft.AutoSize = true;
-            _lbBombsLeft.Location = new Point(10, (HEADER - _lbBombsLeft.Height) / 2);
             _lbTimer = new Label();
             _lbTimer.Parent = this;
             _lbTimer.Font = new Font("Verdana", 20.0f);
             _lbTimer.Text = "000";
             _lbTimer.AutoSize = true;
-            _lbTimer.Location = new Point(ClientSize.Width - 10 - _lbBombsLeft.Width, (HEADER - _lbBombsLeft.Height) / 2);
+
+            // for two-mouse button detection
+            _actionCell = new Point(-1, -1);
+            mouseButtonTimer.Interval = _timerInterval;
 
             // create the map
-            _Map = new TheMap(COLUMNS, ROWS, BOMBS, _lbBombsLeft, _lbTimer);
+            _Map = new TheMap(_Columns, _Rows, _Bombs, CELLWIDTH, _lbBombsLeft, _lbTimer);
+
+            // setup the form
+            FormLayout();
+        }
+
+        private void FormLayout()
+        {
+            // set form client rect to required size
+            this.ClientSize = new Size(_Columns * CELLWIDTH,
+                            _Rows * CELLWIDTH + HEADER + menuStrip1.Height);
+
+            // set size and position of the picturebox frame
+            _frame.Size = new Size(_Columns * CELLWIDTH, _Rows * CELLWIDTH);
+            _frame.Location = new Point(0, menuStrip1.Height + HEADER);
+
+            // setup the graphics device
+            _surface = new Bitmap(_frame.Size.Width, _frame.Size.Height);
+            _frame.Image = _surface;
+            _device = Graphics.FromImage(_surface);
+
+            _resetButton.Location = new Point((ClientRectangle.Width - _resetButton.Width) / 2,
+                ((HEADER - _resetButton.Height) / 2) + menuStrip1.Height);
+            _lbBombsLeft.Location = new Point(10, ((HEADER - _lbBombsLeft.Height) / 2) + menuStrip1.Height);
+            _lbTimer.Location = new Point(ClientSize.Width - 10 - _lbBombsLeft.Width, ((HEADER - _lbBombsLeft.Height) / 2) + menuStrip1.Height);
 
             UpdateMap();
         }
@@ -242,6 +270,77 @@ namespace BombSquad
         {
             mouseButtonTimer.Enabled = false;
             _twoButtons = false;
+        }
+
+        private void menuClick(object sender, EventArgs e)
+        {
+            if ( sender == menuNew)
+            {
+                _Map.InitialiseMap();
+                UpdateMap();
+            }
+            else if ( sender == menuExit)
+            {
+                Close();
+            }
+            else if ( sender == menuHighScores)
+            {
+                MessageBox.Show("High Scores");
+            }
+            else if ( sender == menuEasy )
+            {
+                // set new rows,columns,bombs
+                _Bombs = 10;
+                _Rows = 8;
+                _Columns = 8;
+
+                // Resize form and layout
+                _Map.InitialiseMap(_Columns, _Rows, _Bombs);
+                FormLayout();
+
+                // Menu stuff
+                menuMedium.Checked = false;
+                menuEasy.Checked = true;
+                menuHard.Checked = false;
+            }
+            else if ( sender == menuMedium )
+            {
+                // set new rows,columns,bombs
+                _Bombs = 40;
+                _Rows = 16;
+                _Columns = 16;
+
+                // Resize form and layout
+                _Map.InitialiseMap(_Columns, _Rows, _Bombs);
+                FormLayout();
+
+                // Menu stuff
+                menuMedium.Checked = true;
+                menuEasy.Checked = false;
+                menuHard.Checked = false;
+            }
+            else
+            {
+                // set new rows,columns,bombs
+                _Bombs = 99;
+                _Rows = 16;
+                _Columns = 30;
+
+                // Resize form and layout
+                _Map.InitialiseMap(_Columns, _Rows, _Bombs);
+                FormLayout();
+
+                // Menu stuff
+                menuMedium.Checked = false;
+                menuEasy.Checked = false;
+                menuHard.Checked = true;
+
+            }
+        }
+
+        private void Form1_ResizeEnd(object sender, EventArgs e)
+        {
+            FormLayout();
         }
     }
 }

@@ -29,6 +29,8 @@ namespace BombSquad
         GameStateEnum _GameState;
         public GameStateEnum GameState { get { return _GameState; } }
 
+        private HighScores _highScores;
+
         const int DEFAULT_SIZE = 5;
         const float DEFAULT_BOMB_RATIO = 0.2f;
         const float MAX_BOMB_RATIO = 0.5f;
@@ -42,6 +44,9 @@ namespace BombSquad
             _lbBombsRemaining = bombLabel;
             _lbTimeElapsed = timeLabel;
 
+            // get the high scores
+            _highScores = new HighScores();
+
             if ( _Columns < 1 ) _Columns = DEFAULT_SIZE;
             if ( _Rows < 1 ) _Rows = DEFAULT_SIZE;
 
@@ -49,7 +54,7 @@ namespace BombSquad
             if ( _Bombs < 1 || _Bombs > ( int )( total_cells * MAX_BOMB_RATIO ) ) _Bombs = ( int )( total_cells * DEFAULT_BOMB_RATIO );
 
             // Resource containing cell graphics
-            _CellGraphics = Properties.Resources.Cells30;
+            _CellGraphics = Properties.Resources.Cells;
 
             // setup the timer
             _gameTimer = new Timer();
@@ -292,17 +297,86 @@ namespace BombSquad
                 _gameTimer.Enabled = false;
 
                 // change all hidden cells to green flags
-                for ( int x = 0; x < _Columns; x++ )
+                for (int x = 0; x < _Columns; x++)
                 {
-                    for ( int y = 0; y < _Rows; y++ )
+                    for (int y = 0; y < _Rows; y++)
                     {
-                        if ( _States[x, y].HasFlag( CellState.HIDDEN ) )
+                        if (_States[x, y].HasFlag(CellState.HIDDEN))
                         {
                             _Cells[x, y] = CellImage.WIN;
                             _flagsPlaced++;
                             SetBombLabelText();
+
                         }
                     }
+                }
+            }
+        }
+
+        public void CheckHighScores()
+        {
+            // check for high score
+            // this needs to be fixed
+            if (_Bombs == 10)
+            {
+                // easy mode
+                int timeTaken = Convert.ToInt32(_lbTimeElapsed.Text);
+                int previousBest = Convert.ToInt32(_highScores.EasyScore.Score);
+
+                if (timeTaken < previousBest)
+                {
+                    // new high score
+                    Form nameForm = new GetNameForm();
+                    DialogResult result = nameForm.ShowDialog();
+                    TextBox txtName = (TextBox)nameForm.Controls["txtName"];
+                    string name = txtName.Text;
+                    if (String.IsNullOrWhiteSpace(name))
+                    {
+                        name = "Unknown";
+                    }
+                    _highScores.newEasyHighScore(name, timeTaken.ToString());
+                    _highScores.SaveHighScores();
+                }
+            }
+            else if (_Bombs == 40)
+            {
+                // medium
+                int timeTaken = Convert.ToInt32(_lbTimeElapsed.Text);
+                int previousBest = Convert.ToInt32(_highScores.MediumScore.Score);
+
+                if (timeTaken < previousBest)
+                {
+                    // new high score
+                    Form nameForm = new GetNameForm();
+                    DialogResult result = nameForm.ShowDialog();
+                    TextBox txtName = (TextBox)nameForm.Controls["txtName"];
+                    string name = txtName.Text;
+                    if (String.IsNullOrWhiteSpace(name))
+                    {
+                        name = "Unknown";
+                    }
+                    _highScores.newMediumHighScore(name, timeTaken.ToString());
+                    _highScores.SaveHighScores();
+                }
+            }
+            else if (_Bombs == 99)
+            {
+                int timeTaken = Convert.ToInt32(_lbTimeElapsed.Text);
+                int previousBest = Convert.ToInt32(_highScores.HardScore.Score);
+
+                if (timeTaken < previousBest)
+                {
+                    // new high score
+                    Form nameForm = new GetNameForm();
+                    DialogResult result = nameForm.ShowDialog();
+                    TextBox txtName = (TextBox)nameForm.Controls["txtName"];
+                    string name = txtName.Text;
+                    if (String.IsNullOrWhiteSpace(name))
+                    {
+                        name = "Unknown";
+                    }
+                    _highScores.newHardHighScore(name, timeTaken.ToString());
+                    _highScores.SaveHighScores();
                 }
             }
         }
@@ -448,6 +522,14 @@ namespace BombSquad
                     }
                 }
             }
+        }
+
+        public void ShowHighScores()
+        {
+            string message = String.Format("{0}\n{1}\n{2}", _highScores.Easy,
+                _highScores.Medium, _highScores.Hard);
+
+            MessageBox.Show(message);
         }
     }
 }

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwoMouseClick", "TwoMouseCl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAMenu", "AddAMenu\AddAMenu.csproj", "{5E51BC83-58D5-4E70-AE67-A6218358A7B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighScoreDemo", "HighScoreDemo\HighScoreDemo.csproj", "{499585FF-539E-4DE7-B161-6AA4C3FDC5D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E51BC83-58D5-4E70-AE67-A6218358A7B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{499585FF-539E-4DE7-B161-6AA4C3FDC5D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{499585FF-539E-4DE7-B161-6AA4C3FDC5D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{499585FF-539E-4DE7-B161-6AA4C3FDC5D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{499585FF-539E-4DE7-B161-6AA4C3FDC5D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

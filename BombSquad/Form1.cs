@@ -27,10 +27,10 @@ namespace BombSquad
         MouseButtons _buttonDown = MouseButtons.None;
         bool _twoButtons = false;
 
-        const int COLUMNS = 9;
-        const int ROWS = 9;
+        const int COLUMNS = 8;
+        const int ROWS = 8;
         const int BOMBS = 10;
-        const int CELLWIDTH = 30;
+        const int CELLWIDTH = 40;
         const int HEADER = 50;
 
         /// <summary>
@@ -134,83 +134,89 @@ namespace BombSquad
 
         private void PictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            Trace.WriteLine("MouseUp");
-
-            // get cell for this action
-            Point testPoint = GetCellCoordinates(e.X, e.Y);
-
-            // check if action is on same cell, only handle actions in same cell
-            // as mouse down
-            if (testPoint == _actionCell)
+            // do not handle if game has ended
+            if (_Map.GameState == TheMap.GameStateEnum.INIT || _Map.GameState == TheMap.GameStateEnum.PLAY)
             {
-                if (_twoButtons)
-                {
-                    _twoButtons = false;
-                    //_buttonDown = MouseButtons.None;
-                    //mouseButtonTimer.Enabled = false;
-                    // send two button command
-                    _Map.QuickClear(_actionCell.X, _actionCell.Y);
-                }
-                else if (_buttonDown != MouseButtons.None)
-                {
-                    //mouseButtonTimer.Enabled = false;
-                    //_buttonDown = MouseButtons.None;
-                    // new mouse up action
+                Trace.WriteLine("MouseUp");
 
-                    // send the click event
-                    _Map.Click(_actionCell.X, _actionCell.Y, e.Button);
-                }
-            }
-            else
-            {
-                // un-highlight cell
-            }
+                // get cell for this action
+                Point testPoint = GetCellCoordinates(e.X, e.Y);
 
-            UpdateMap();
-                
-            // reset the action cell
-            _actionCell.X = _actionCell.Y = -1;
-            mouseButtonTimer.Enabled = false;
-            _buttonDown = MouseButtons.None;
+                // check if action is on same cell, only handle actions in same cell
+                // as mouse down
+                if (testPoint == _actionCell)
+                {
+                    if (_twoButtons)
+                    {
+                        _twoButtons = false;
+                        //_buttonDown = MouseButtons.None;
+                        //mouseButtonTimer.Enabled = false;
+                        // send two button command
+                        _Map.QuickClear(_actionCell.X, _actionCell.Y);
+                    }
+                    else if (_buttonDown != MouseButtons.None)
+                    {
+                        //mouseButtonTimer.Enabled = false;
+                        //_buttonDown = MouseButtons.None;
+                        // new mouse up action
+
+                        // send the click event
+                        _Map.Click(_actionCell.X, _actionCell.Y, e.Button);
+                    }
+                }
+                else
+                {
+                    // un-highlight cell
+                }
+
+                UpdateMap();
+
+                // check for new highscore
+                if (_Map.GameState == TheMap.GameStateEnum.WON)
+                {
+                    _Map.CheckHighScores();
+                }
+
+                // reset the action cell
+                _actionCell.X = _actionCell.Y = -1;
+                mouseButtonTimer.Enabled = false;
+                _buttonDown = MouseButtons.None;
+            }
         }
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            //if ( _actionCell.X == -1 && _actionCell.Y == -1 )
-            //{
-            //    // new mouse down action
-            //    // get cell for this action
-            //    _actionCell = GetCellCoordinates(e.X, e.Y);
-
-            //    // highlight cell
-            //}
-            if ( _buttonDown == MouseButtons.None )
+            // don't register mouse clicks if game has ended
+            if (_Map.GameState == TheMap.GameStateEnum.INIT || _Map.GameState == TheMap.GameStateEnum.PLAY)
             {
-                // new button down registered
-                _actionCell = GetCellCoordinates(e.X, e.Y);
-                _buttonDown = e.Button;
-                mouseButtonTimer.Enabled = true;
-            }
-            else
-            {
-                // double mouse button, only occurs if timer has not ticked
-                switch (_buttonDown)
+                if (_buttonDown == MouseButtons.None)
                 {
-                    case MouseButtons.Left:
-                        if (e.Button == MouseButtons.Right)
-                        {
-                            _twoButtons = true;
-                            mouseButtonTimer.Enabled = false;
-                        }
-                        break;
+                    // new button down registered
+                    _actionCell = GetCellCoordinates(e.X, e.Y);
+                    _buttonDown = e.Button;
+                    mouseButtonTimer.Enabled = true;
+                }
+                else
+                {
+                    // double mouse button, only occurs if timer has not ticked
+                    switch (_buttonDown)
+                    {
+                        case MouseButtons.Left:
+                            if (e.Button == MouseButtons.Right)
+                            {
+                                _twoButtons = true;
+                                mouseButtonTimer.Enabled = false;
+                            }
+                            break;
 
-                    case MouseButtons.Right:
-                        if ( e.Button == MouseButtons.Left)
-                        {
-                            _twoButtons = true;
-                            mouseButtonTimer.Enabled = false;
-                        }
-                        break;
+                        case MouseButtons.Right:
+                            if (e.Button == MouseButtons.Left)
+                            {
+                                _twoButtons = true;
+                                mouseButtonTimer.Enabled = false;
+                            }
+                            break;
+                    }
                 }
             }
         }
@@ -285,7 +291,7 @@ namespace BombSquad
             }
             else if ( sender == menuHighScores)
             {
-                MessageBox.Show("High Scores");
+                _Map.ShowHighScores();
             }
             else if ( sender == menuEasy )
             {

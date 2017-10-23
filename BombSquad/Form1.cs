@@ -30,7 +30,7 @@ namespace BombSquad
         const int COLUMNS = 8;
         const int ROWS = 8;
         const int BOMBS = 10;
-        const int CELLWIDTH = 40;
+        const int CELLWIDTH = 30;
         const int HEADER = 50;
 
         /// <summary>

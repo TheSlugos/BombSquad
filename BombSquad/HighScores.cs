@@ -14,7 +14,7 @@ namespace BombSquad
             public string Score;
         }
 
-        private const string Path = "BombSquad.xml";
+        private const string Path = "BombSquadConfig.xml";
         private const string TableTagName = "HighScores";
         private const string LevelTagName = "Level";
         private const string NameTagName = "Name";

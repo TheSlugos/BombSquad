@@ -33,7 +33,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuNew = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.levelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuEasy = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,6 +41,7 @@
             this.menuHighScores = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -77,15 +77,10 @@
             // menuNew
             // 
             this.menuNew.Name = "menuNew";
+            this.menuNew.ShortcutKeys = System.Windows.Forms.Keys.F2;
             this.menuNew.Size = new System.Drawing.Size(210, 30);
             this.menuNew.Text = "&New";
             this.menuNew.Click += new System.EventHandler(this.menuClick);
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // toolStripMenuItem1
             // 
@@ -105,21 +100,21 @@
             // menuEasy
             // 
             this.menuEasy.Name = "menuEasy";
-            this.menuEasy.Size = new System.Drawing.Size(210, 30);
+            this.menuEasy.Size = new System.Drawing.Size(162, 30);
             this.menuEasy.Text = "Easy";
             this.menuEasy.Click += new System.EventHandler(this.menuClick);
             // 
             // menuMedium
             // 
             this.menuMedium.Name = "menuMedium";
-            this.menuMedium.Size = new System.Drawing.Size(210, 30);
+            this.menuMedium.Size = new System.Drawing.Size(162, 30);
             this.menuMedium.Text = "Medium";
             this.menuMedium.Click += new System.EventHandler(this.menuClick);
             // 
             // menuHard
             // 
             this.menuHard.Name = "menuHard";
-            this.menuHard.Size = new System.Drawing.Size(210, 30);
+            this.menuHard.Size = new System.Drawing.Size(162, 30);
             this.menuHard.Text = "Hard";
             this.menuHard.Click += new System.EventHandler(this.menuClick);
             // 
@@ -138,9 +133,16 @@
             // menuExit
             // 
             this.menuExit.Name = "menuExit";
+            this.menuExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
             this.menuExit.Size = new System.Drawing.Size(210, 30);
             this.menuExit.Text = "E&xit";
             this.menuExit.Click += new System.EventHandler(this.menuClick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // Form1
             // 

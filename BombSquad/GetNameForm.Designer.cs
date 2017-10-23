@@ -31,12 +31,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
+            this.lblMessage = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(28, 24);
+            this.label1.Location = new System.Drawing.Point(13, 125);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 20);
             this.label1.TabIndex = 0;
@@ -44,14 +45,15 @@
             // 
             // txtName
             // 
-            this.txtName.Location = new System.Drawing.Point(89, 21);
+            this.txtName.Location = new System.Drawing.Point(74, 122);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(161, 26);
+            this.txtName.Size = new System.Drawing.Size(390, 26);
             this.txtName.TabIndex = 1;
+            this.txtName.Text = "Player";
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(92, 72);
+            this.btnOK.Location = new System.Drawing.Point(191, 176);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(94, 36);
             this.btnOK.TabIndex = 2;
@@ -59,18 +61,30 @@
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
+            // lblMessage
+            // 
+            this.lblMessage.Location = new System.Drawing.Point(13, 13);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(451, 96);
+            this.lblMessage.TabIndex = 3;
+            this.lblMessage.Text = "label goes here";
+            // 
             // GetNameForm
             // 
+            this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(278, 129);
+            this.ClientSize = new System.Drawing.Size(476, 262);
+            this.ControlBox = false;
+            this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.txtName);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "GetNameForm";
-            this.Text = "Enter Name";
+            this.Text = "New High Score";
+            this.Load += new System.EventHandler(this.GetNameForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -81,5 +95,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.Button btnOK;
+        private System.Windows.Forms.Label lblMessage;
     }
 }

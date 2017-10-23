@@ -21,5 +21,10 @@ namespace BombSquad
         {
             this.Close();
         }
+
+        private void GetNameForm_Load(object sender, EventArgs e)
+        {
+            txtName.SelectAll();
+        }
     }
 }

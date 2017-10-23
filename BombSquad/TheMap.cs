@@ -54,7 +54,8 @@ namespace BombSquad
             if ( _Bombs < 1 || _Bombs > ( int )( total_cells * MAX_BOMB_RATIO ) ) _Bombs = ( int )( total_cells * DEFAULT_BOMB_RATIO );
 
             // Resource containing cell graphics
-            _CellGraphics = Properties.Resources.Cells;
+            //_CellGraphics = Properties.Resources.Cells;
+            _CellGraphics = Properties.Resources.Cells30;
 
             // setup the timer
             _gameTimer = new Timer();
@@ -327,6 +328,10 @@ namespace BombSquad
                 {
                     // new high score
                     Form nameForm = new GetNameForm();
+
+                    // set message for the form
+                    string message = "Congratulations, you have achieved a new fastest time for Easy difficulty.";
+                    ((Label)nameForm.Controls["lblMessage"]).Text = message;
                     DialogResult result = nameForm.ShowDialog();
                     TextBox txtName = (TextBox)nameForm.Controls["txtName"];
                     string name = txtName.Text;
@@ -348,6 +353,8 @@ namespace BombSquad
                 {
                     // new high score
                     Form nameForm = new GetNameForm();
+                    string message = "Congratulations, you have achieved a new fastest time for Medium difficulty.";
+                    ((Label)nameForm.Controls["lblMessage"]).Text = message;
                     DialogResult result = nameForm.ShowDialog();
                     TextBox txtName = (TextBox)nameForm.Controls["txtName"];
                     string name = txtName.Text;
@@ -368,6 +375,8 @@ namespace BombSquad
                 {
                     // new high score
                     Form nameForm = new GetNameForm();
+                    string message = "Congratulations, you have achieved a new fastest time for Hard difficulty.";
+                    ((Label)nameForm.Controls["lblMessage"]).Text = message;
                     DialogResult result = nameForm.ShowDialog();
                     TextBox txtName = (TextBox)nameForm.Controls["txtName"];
                     string name = txtName.Text;
@@ -526,10 +535,15 @@ namespace BombSquad
 
         public void ShowHighScores()
         {
-            string message = String.Format("{0}\n{1}\n{2}", _highScores.Easy,
-                _highScores.Medium, _highScores.Hard);
+            Form showHighScores = new HighScoresForm();
+            ((Label)showHighScores.Controls["lblEasyName"]).Text = _highScores.EasyScore.Name;
+            ((Label)showHighScores.Controls["lblEasyScore"]).Text = _highScores.EasyScore.Score;
+            ((Label)showHighScores.Controls["lblMediumName"]).Text = _highScores.MediumScore.Name;
+            ((Label)showHighScores.Controls["lblMediumScore"]).Text = _highScores.MediumScore.Score;
+            ((Label)showHighScores.Controls["lblHardName"]).Text = _highScores.HardScore.Name;
+            ((Label)showHighScores.Controls["lblHardScore"]).Text = _highScores.HardScore.Score;
 
-            MessageBox.Show(message);
+            showHighScores.ShowDialog();
         }
     }
 }
